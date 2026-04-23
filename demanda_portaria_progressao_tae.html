@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Demanda – Refatoração da Interface de Cadastro de Portaria de Progressão de TAE</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; font-size: 14px; color: #222; background: #f5f5f2; line-height: 1.7; }
+  .page { max-width: 900px; margin: 40px auto; background: #fff; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+  .page-header { background: #1d9e75; padding: 24px 32px; }
+  .page-header h1 { color: #fff; font-size: 18px; font-weight: 600; }
+  .page-header .meta { color: #9fe1cb; font-size: 12px; margin-top: 4px; }
+  .body { padding: 32px; }
+  h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #1d9e75; border-bottom: 1.5px solid #e1f5ee; padding-bottom: 6px; margin: 32px 0 14px; }
+  h2:first-child { margin-top: 0; }
+  p { margin-bottom: 10px; font-size: 14px; }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 6px; font-size: 14px; }
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+  .problema-item { margin-bottom: 12px; }
+  .problema-num { font-weight: 700; color: #c0392b; }
+  .checklist { list-style: none; padding-left: 0; }
+  .checklist li { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+  .checklist li::before { content: "☐"; font-size: 16px; color: #1d9e75; flex-shrink: 0; margin-top: -1px; }
+  .mockup-section { background: #f0f9f5; border: 1px solid #9fe1cb; border-radius: 8px; padding: 16px; margin: 20px 0; }
+  .mockup-label { font-size: 12px; font-weight: 700; color: #085041; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; display: flex; align-items: center; gap-6px; }
+  .mockup-label::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #1d9e75; margin-right: 6px; }
+  .mockup-frame { border: 1px solid #cce8df; border-radius: 6px; overflow: hidden; background: #fff; }
+  hr { border: none; border-top: 1px solid #eee; margin: 28px 0; }
+
+  /* ===== MOCKUP STYLES ===== */
+  .suap-wrap { background: #f5f5f2; font-family: Arial, sans-serif; font-size: 14px; color: #222; }
+  .suap-header { padding: 12px 20px; border-bottom: 1px solid #ddd; background: #fff; }
+  .breadcrumb { font-size: 11px; color: #888; margin-bottom: 4px; }
+  .breadcrumb span { color: #1d9e75; }
+  .page-title-m { font-size: 19px; font-weight: 600; }
+  .stepper { display: flex; align-items: center; padding: 14px 20px; background: #fff; border-bottom: 1px solid #ddd; }
+  .step { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+  .step-circle { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+  .step.active .step-circle { background: #1d9e75; color: #fff; }
+  .step.done .step-circle { background: #9fe1cb; color: #085041; }
+  .step.inactive .step-circle { background: #eee; color: #888; border: 1px solid #ddd; }
+  .step.active .step-label { color: #222; font-weight: 600; }
+  .step.done .step-label { color: #0f6e56; }
+  .step.inactive .step-label { color: #888; }
+  .step-sep { flex: 1; height: 1px; background: #ddd; margin: 0 10px; }
+  .m-screen { display: none; padding: 16px 20px; }
+  .m-screen.visible { display: block; }
+  .form-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin-bottom: 14px; }
+  .form-card-header { padding: 9px 16px; background: #f0f9f5; border-bottom: 1px solid #9fe1cb; font-size: 13px; font-weight: 600; color: #085041; }
+  .form-row { display: grid; grid-template-columns: 180px 1fr; border-bottom: 1px solid #eee; }
+  .form-row:last-child { border-bottom: none; }
+  .form-label { padding: 9px 16px; font-size: 13px; color: #555; display: flex; align-items: flex-start; padding-top: 11px; background: #fafafa; }
+  .req { color: #c0392b; margin-left: 2px; }
+  .form-field { padding: 7px 12px; display: flex; flex-direction: column; justify-content: center; }
+  .form-field input, .form-field select { width: 100%; padding: 6px 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px; background: #fff; color: #222; font-family: Arial, sans-serif; }
+  .hint { font-size: 11px; color: #aaa; margin-top: 3px; }
+  .cond-block { display: none; background: #fffbf0; border: 1px solid #fac775; border-radius: 5px; padding: 10px 14px; margin-top: 8px; }
+  .cond-block.on { display: block; }
+  .cond-title { font-size: 11px; color: #633806; font-weight: 600; margin-bottom: 8px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .mini-label { font-size: 12px; color: #555; margin-bottom: 4px; }
+  .mini-input { width: 100%; padding: 6px 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px; background: #fff; color: #222; font-family: Arial, sans-serif; }
+  .btn-row { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+  .mbtn { padding: 7px 18px; border-radius: 5px; font-size: 13px; cursor: pointer; border: 1px solid #ddd; background: #fff; color: #222; font-family: Arial, sans-serif; }
+  .mbtn:hover { background: #f5f5f2; }
+  .mbtn-primary { background: #1d9e75; color: #fff; border-color: #1d9e75; }
+  .mbtn-primary:hover { background: #0f6e56; }
+  .mbtn-blue { background: #185fa5; color: #fff; border-color: #185fa5; }
+  .mbtn-blue:hover { background: #0c447c; }
+  .summary-card { background: #fff; border: 1px solid #9fe1cb; border-radius: 8px; overflow: hidden; margin-bottom: 14px; }
+  .sum-header { display: flex; justify-content: space-between; align-items: center; padding: 9px 16px; background: #f0f9f5; border-bottom: 1px solid #9fe1cb; cursor: pointer; }
+  .sum-title { font-size: 13px; font-weight: 600; color: #085041; }
+  .sum-toggle { font-size: 11px; color: #0f6e56; }
+  .sum-grid { display: grid; grid-template-columns: repeat(3,1fr); }
+  .sum-item { padding: 9px 16px; border-right: 1px solid #eee; border-bottom: 1px solid #eee; }
+  .sum-item:nth-child(3n) { border-right: none; }
+  .sum-item:nth-last-child(-n+3) { border-bottom: none; }
+  .sum-lbl { font-size: 11px; color: #aaa; margin-bottom: 2px; }
+  .sum-val { font-size: 13px; font-weight: 600; }
+  .servidor-badge { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-bottom: 1px solid #eee; background: #fafafa; }
+  .badge-avatar { width: 34px; height: 34px; border-radius: 50%; background: #9fe1cb; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #085041; flex-shrink: 0; }
+  .badge-name { font-size: 13px; font-weight: 600; }
+  .badge-sub { font-size: 11px; color: #888; }
+  .tabs { display: flex; border-bottom: 1px solid #ddd; background: #fff; }
+  .tab { padding: 9px 16px; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; color: #888; white-space: nowrap; }
+  .tab.active { border-bottom-color: #1d9e75; color: #1d9e75; font-weight: 600; }
+  .tab-pane { display: none; padding: 16px; }
+  .tab-pane.on { display: block; }
+  .radio-group { display: flex; gap: 16px; margin-bottom: 12px; }
+  .radio-group label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+  .preview-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin-bottom: 14px; }
+  .preview-header { padding: 9px 16px; background: #fafafa; border-bottom: 1px solid #ddd; font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+  .preview-badge { font-size: 11px; background: #e1f5ee; color: #085041; padding: 2px 8px; border-radius: 20px; border: 1px solid #9fe1cb; }
+  .preview-body { padding: 20px 24px; font-size: 13px; line-height: 1.8; font-family: Georgia, serif; }
+  .preview-body h3 { text-align: center; font-size: 14px; font-weight: 700; margin-bottom: 4px; letter-spacing: 1px; }
+  .preview-body .subtitle { text-align: center; font-size: 12px; color: #888; margin-bottom: 16px; }
+  .preview-body p { margin-bottom: 10px; text-align: justify; }
+  .preview-body .assinatura { margin-top: 24px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="page-header">
+    <h1>Refatoração da Interface de Cadastro de Portaria de Progressão de TAE</h1>
+    <div class="meta">Módulo: Atos Administrativos – Gerador de Documentos &nbsp;|&nbsp; DIGTI/IFMA &nbsp;|&nbsp; Abril de 2026</div>
+  </div>
+
+  <div class="body">
+
+    <h2>Contexto</h2>
+    <p>O módulo <strong>Atos Administrativos – Gerador de Documentos</strong> do SUAP possui uma funcionalidade de cadastro de Portarias de Progressão de TAE, acessada pelo caminho: <em>Atos Administrativos &gt; Gerador de Documentos &gt; Portarias de Progressões de TAE &gt; Adicionar Portaria de Progressão de TAE</em>.</p>
+    <p>A interface atual é gerada pelo padrão Django Admin e exibe todos os campos do formulário em uma única tela vertical, sem agrupamento semântico, sem indicação de progresso e sem feedback visual do documento que será produzido.</p>
+
+    <h2>Problema</h2>
+    <div class="problema-item"><span class="problema-num">1. Ausência de contexto e agrupamento:</span> os campos são listados verticalmente sem separação por tema ou etapa, tornando difícil para o usuário compreender a lógica do preenchimento e onde está no fluxo.</div>
+    <div class="problema-item"><span class="problema-num">2. Campos condicionais sempre visíveis:</span> os campos <em>Número da Portaria de Designação</em> e <em>Data da Portaria de Designação</em> aparecem sempre, com apenas um hint textual indicando que são opcionais. Não há lógica condicional visual.</div>
+    <div class="problema-item"><span class="problema-num">3. Ambiguidade entre processos:</span> os campos <em>Processo Físico</em> e <em>Processo Eletrônico</em> aparecem simultaneamente, sem deixar claro que são mutuamente exclusivos.</div>
+    <div class="problema-item"><span class="problema-num">4. Ausência de preview do documento:</span> o usuário não tem como visualizar como ficará a portaria antes de salvá-la ou gerá-la, aumentando o risco de erros e retrabalho.</div>
+    <div class="problema-item"><span class="problema-num">5. Servidor descontextualizado:</span> o campo <em>Servidor</em> aparece no meio do formulário sem relação clara com os campos de progressão que dependem diretamente dele.</div>
+    <div class="problema-item"><span class="problema-num">6. Ausência de distinção entre salvar e gerar:</span> os botões <em>Salvar</em>, <em>Salvar e adicionar outro</em> e <em>Salvar e continuar editando</em> não distinguem o momento em que o documento eletrônico é efetivamente gerado.</div>
+
+    <h2>Proposta de Solução</h2>
+    <p>Refatorar a interface em um fluxo de <strong>duas etapas (wizard)</strong>, mantendo toda a lógica de negócio existente e alterando apenas a experiência de preenchimento.</p>
+    <p><strong>Etapa 1 — Dados da Portaria:</strong> Assinador, Servidor, titular ou não (condicional), Data, Campus, Setor Dono, Ano, Tipo.</p>
+    <p><strong>Etapa 2 — Progressão e Documento:</strong> bloco de resumo colapsável com os dados da etapa 1; abas para Processo (físico ou eletrônico) e Progressão (níveis, padrões, efeitos financeiros); preview em tempo real do texto da portaria; e botão <em>Gerar documento eletrônico</em> separado do <em>Salvar rascunho</em>.</p>
+
+    <h2>Interface / UX — Protótipo Interativo</h2>
+    <p>O protótipo abaixo é navegável. Selecione <strong>Assinador</strong> e <strong>Servidor</strong> na Etapa 1, clique em <strong>Próximo</strong> e experimente a Etapa 2 com o preview em tempo real.</p>
+
+    <div class="mockup-section">
+      <div class="mockup-label">Protótipo interativo — referência para implementação</div>
+      <div class="mockup-frame">
+
+        <!-- ===== MOCKUP EMBEDADO ===== -->
+        <div class="suap-wrap">
+          <div class="suap-header">
+            <div class="breadcrumb">Início › Atos Administrativos › <span>Portarias de Progressões de TAE</span> › Adicionar</div>
+            <div class="page-title-m">Adicionar Portaria de Progressão de TAE</div>
+          </div>
+
+          <div class="stepper">
+            <div class="step active" id="st1">
+              <div class="step-circle">1</div>
+              <div class="step-label">Dados da portaria</div>
+            </div>
+            <div class="step-sep"></div>
+            <div class="step inactive" id="st2">
+              <div class="step-circle">2</div>
+              <div class="step-label">Progressão e documento</div>
+            </div>
+          </div>
+
+          <!-- TELA 1 -->
+          <div class="m-screen visible" id="screen1">
+            <div class="form-card">
+              <div class="form-card-header">Dados da portaria</div>
+              <div class="form-row">
+                <div class="form-label">Assinador<span class="req">*</span></div>
+                <div class="form-field">
+                  <select id="assinador" onchange="updatePreview()">
+                    <option value="">---------</option>
+                    <option value="Carlos César Teixeira Ferreira">Carlos César Teixeira Ferreira</option>
+                    <option value="Substituto designado">Substituto designado</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-label">Servidor<span class="req">*</span></div>
+                <div class="form-field">
+                  <select id="servidor" onchange="updateServidor()">
+                    <option value="">Pesquisar servidor...</option>
+                    <option value="Ana Paula Rodrigues|Técnica em Assuntos Educacionais|C-I">Ana Paula Rodrigues</option>
+                    <option value="João Mendes Silva|Assistente em Administração|D-II">João Mendes Silva</option>
+                  </select>
+                  <div class="hint">Servidor que receberá a progressão</div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-label">Servidor é o titular?<span class="req">*</span></div>
+                <div class="form-field">
+                  <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:2px 0">
+                    <input type="checkbox" id="chkDesig" onchange="toggleDesig()" />
+                    Não — informar portaria de designação
+                  </label>
+                  <div class="cond-block" id="blockDesig">
+                    <div class="cond-title">Portaria de Designação</div>
+                    <div class="two-col">
+                      <div>
+                        <div class="mini-label">Número</div>
+                        <input class="mini-input" type="number" id="numDesig" placeholder="Ex: 142" onchange="updatePreview()" />
+                      </div>
+                      <div>
+                        <div class="mini-label">Data</div>
+                        <input class="mini-input" type="date" id="dtDesig" onchange="updatePreview()" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-label">Data<span class="req">*</span></div>
+                <div class="form-field"><input type="date" id="dataPortaria" onchange="updatePreview()" /></div>
+              </div>
+              <div class="form-row">
+                <div class="form-label">Campus</div>
+                <div class="form-field"><input type="text" value="REIT" disabled /></div>
+              </div>
+              <div class="form-row">
+                <div class="form-label">Setor Dono<span class="req">*</span></div>
+                <div class="form-field"><select><option>---------</option><option>DIGTI</option><option>DRH</option></select></div>
+              </div>
+              <div class="form-row">
+                <div class="form-label">Ano da Portaria<span class="req">*</span></div>
+                <div class="form-field"><input type="number" value="2026" id="ano" onchange="updatePreview()" /></div>
+              </div>
+              <div class="form-row">
+                <div class="form-label">Tipo<span class="req">*</span></div>
+                <div class="form-field">
+                  <select id="tipo" onchange="updatePreview()">
+                    <option value="">---------</option>
+                    <option value="por mérito">Por mérito</option>
+                    <option value="por capacitação">Por capacitação</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="mbtn mbtn-primary" onclick="goTo(2)">Próximo →</button>
+            </div>
+          </div>
+
+          <!-- TELA 2 -->
+          <div class="m-screen" id="screen2">
+            <div class="summary-card">
+              <div class="sum-header" onclick="toggleSum()">
+                <div class="sum-title">Dados da portaria</div>
+                <span class="sum-toggle" id="sumToggle">▲ recolher</span>
+              </div>
+              <div id="sumBody">
+                <div class="servidor-badge">
+                  <div class="badge-avatar" id="sumAvatar">--</div>
+                  <div>
+                    <div class="badge-name" id="sumNome">—</div>
+                    <div class="badge-sub" id="sumCargo">—</div>
+                  </div>
+                </div>
+                <div class="sum-grid">
+                  <div class="sum-item"><div class="sum-lbl">Assinador</div><div class="sum-val" id="s-assinador">—</div></div>
+                  <div class="sum-item"><div class="sum-lbl">Data</div><div class="sum-val" id="s-data">—</div></div>
+                  <div class="sum-item"><div class="sum-lbl">Campus</div><div class="sum-val">REIT</div></div>
+                  <div class="sum-item"><div class="sum-lbl">Ano</div><div class="sum-val" id="s-ano">—</div></div>
+                  <div class="sum-item"><div class="sum-lbl">Tipo</div><div class="sum-val" id="s-tipo">—</div></div>
+                  <div class="sum-item"><div class="sum-lbl">Titular</div><div class="sum-val" id="s-titular">Sim</div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-card">
+              <div class="tabs">
+                <div class="tab active" onclick="switchTab('processo',this)">Processo</div>
+                <div class="tab" onclick="switchTab('progressao',this)">Progressão</div>
+              </div>
+              <div class="tab-pane on" id="tab-processo">
+                <div style="font-size:13px;color:#555;margin-bottom:12px">Associe um processo a esta portaria — físico ou eletrônico.</div>
+                <div class="radio-group">
+                  <label><input type="radio" name="tpProc" value="fisico" checked onchange="switchProc('fisico')" /> Processo físico</label>
+                  <label><input type="radio" name="tpProc" value="eletronico" onchange="switchProc('eletronico')" /> Processo eletrônico</label>
+                </div>
+                <div id="cp-fisico">
+                  <div class="mini-label">Número do processo físico</div>
+                  <input class="mini-input" type="text" placeholder="Pesquisar..." style="max-width:400px" />
+                </div>
+                <div id="cp-eletronico" style="display:none">
+                  <div class="mini-label">Número do processo eletrônico</div>
+                  <input class="mini-input" type="text" placeholder="Pesquisar..." style="max-width:400px" />
+                </div>
+              </div>
+              <div class="tab-pane" id="tab-progressao">
+                <div style="font-size:13px;color:#555;margin-bottom:12px">Dados da progressão do servidor <strong id="prog-nome">—</strong></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                  <div>
+                    <div class="mini-label">Efeitos Financeiros<span class="req">*</span></div>
+                    <input class="mini-input" type="date" id="efFin" onchange="updatePreview()" />
+                  </div>
+                  <div></div>
+                  <div>
+                    <div class="mini-label">Nível Anterior</div>
+                    <select class="mini-input" id="nvlAnt" onchange="updatePreview()"><option value="">---------</option><option>C-I</option><option>C-II</option><option>D-I</option><option>D-II</option></select>
+                  </div>
+                  <div>
+                    <div class="mini-label">Novo Nível</div>
+                    <select class="mini-input" id="nvlNovo" onchange="updatePreview()"><option value="">---------</option><option>C-II</option><option>C-III</option><option>D-II</option><option>D-III</option></select>
+                  </div>
+                  <div>
+                    <div class="mini-label">Padrão de Vencimento Anterior</div>
+                    <select class="mini-input" id="padAnt" onchange="updatePreview()"><option value="">---------</option><option>I</option><option>II</option><option>III</option></select>
+                  </div>
+                  <div>
+                    <div class="mini-label">Novo Padrão de Vencimento</div>
+                    <select class="mini-input" id="padNovo" onchange="updatePreview()"><option value="">---------</option><option>II</option><option>III</option><option>IV</option></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="preview-card">
+              <div class="preview-header">
+                <span>Preview do documento</span>
+                <span class="preview-badge">atualizado em tempo real</span>
+              </div>
+              <div class="preview-body" id="previewBody">
+                <h3>PORTARIA Nº —/2026 – REIT</h3>
+                <div class="subtitle">Instituto Federal de Educação, Ciência e Tecnologia do Maranhão</div>
+                <p id="prev-p1">O <strong>—</strong>, no uso de suas atribuições legais e tendo em vista o contido no Processo nº —,</p>
+                <p><strong>RESOLVE:</strong></p>
+                <p id="prev-p2">Conceder progressão funcional — ao servidor <strong>—</strong>, do cargo de —, do nível — para o nível —, com efeitos financeiros a partir de —.</p>
+                <div class="assinatura">
+                  <p style="margin-top:32px">___________________________________</p>
+                  <p id="prev-ass" style="font-size:13px;margin-top:4px">—</p>
+                  <p style="font-size:12px;color:#888">Reitor do IFMA</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button class="mbtn" onclick="goTo(1)">← Voltar</button>
+              <button class="mbtn mbtn-primary">Salvar rascunho</button>
+              <button class="mbtn mbtn-blue" onclick="alert('Documento eletrônico gerado com sucesso!')">Gerar documento eletrônico</button>
+            </div>
+          </div>
+        </div>
+        <!-- ===== FIM DO MOCKUP ===== -->
+
+      </div>
+    </div>
+
+    <h2>Regras de Negócio</h2>
+    <ol>
+      <li>Os campos marcados como obrigatórios na tela atual devem permanecer obrigatórios.</li>
+      <li>Assinador e Servidor são pré-requisitos para avançar à etapa 2.</li>
+      <li>Os campos <em>Número</em> e <em>Data da Portaria de Designação</em> só devem ser exibidos quando o usuário indicar que o servidor não é o titular.</li>
+      <li>Apenas um dos campos de processo (físico ou eletrônico) deve ser preenchível por vez — são mutuamente exclusivos.</li>
+      <li>O documento eletrônico só deve ser gerado mediante ação explícita no botão <em>Gerar documento eletrônico</em>, não no salvamento do formulário.</li>
+      <li>O salvamento do rascunho deve ser possível sem que o documento seja gerado.</li>
+      <li>Campus deve ser preenchido automaticamente conforme o contexto do usuário logado, sem edição manual.</li>
+      <li>Ano da Portaria deve ser pré-preenchido com o ano corrente, com possibilidade de edição.</li>
+    </ol>
+
+    <h2>Critérios de Aceite</h2>
+    <ul class="checklist">
+      <li>A interface exibe um stepper com 2 etapas claramente identificadas.</li>
+      <li>O botão <em>Próximo</em> da etapa 1 só avança se Assinador e Servidor estiverem preenchidos, exibindo mensagem de validação caso contrário.</li>
+      <li>Os campos de Designação são exibidos somente quando o usuário marca que o servidor não é o titular.</li>
+      <li>Na etapa 2, os dados da etapa 1 são exibidos em bloco de resumo colapsável com nome, cargo e iniciais do servidor.</li>
+      <li>O campo de processo exibe apenas o campo correspondente à opção selecionada (físico ou eletrônico).</li>
+      <li>O preview da portaria é atualizado em tempo real conforme os campos são preenchidos.</li>
+      <li>O botão <em>Gerar documento eletrônico</em> é visualmente distinto do botão <em>Salvar rascunho</em>.</li>
+      <li>O documento eletrônico é gerado somente ao acionar o botão específico, não ao salvar.</li>
+      <li>Toda a lógica de negócio existente (vínculos, permissões, validações de servidor/progressão) é preservada.</li>
+      <li>A interface é responsiva e compatível com os breakpoints já utilizados no SUAP.</li>
+    </ul>
+
+  </div>
+</div>
+
+<script>
+var servidorData = {nome:'', cargo:'', nivel:''};
+
+function goTo(n) {
+  if (n === 2) {
+    var a = document.getElementById('assinador').value;
+    var s = document.getElementById('servidor').value;
+    if (!a || !s) { alert('Preencha Assinador e Servidor antes de continuar.'); return; }
+    populateSum();
+  }
+  document.querySelectorAll('.m-screen').forEach(function(s){ s.classList.remove('visible'); });
+  document.getElementById('screen' + n).classList.add('visible');
+  ['st1','st2'].forEach(function(id, i) {
+    var el = document.getElementById(id);
+    el.className = 'step ' + (i+1 < n ? 'done' : i+1 === n ? 'active' : 'inactive');
+  });
+}
+
+function updateServidor() {
+  var v = document.getElementById('servidor').value;
+  if (v) {
+    var parts = v.split('|');
+    servidorData = {nome: parts[0], cargo: parts[1], nivel: parts[2]};
+  } else {
+    servidorData = {nome:'', cargo:'', nivel:''};
+  }
+  updatePreview();
+}
+
+function populateSum() {
+  var ass = document.getElementById('assinador').value;
+  var dp  = document.getElementById('dataPortaria').value;
+  var ano = document.getElementById('ano').value;
+  var tipo = document.getElementById('tipo').value;
+  var titular = document.getElementById('chkDesig').checked ? 'Não (designado)' : 'Sim';
+  document.getElementById('s-assinador').textContent = ass || '—';
+  document.getElementById('s-data').textContent = dp ? formatDate(dp) : '—';
+  document.getElementById('s-ano').textContent = ano || '—';
+  document.getElementById('s-tipo').textContent = tipo ? capitalize(tipo) : '—';
+  document.getElementById('s-titular').textContent = titular;
+  document.getElementById('sumNome').textContent = servidorData.nome || '—';
+  document.getElementById('sumCargo').textContent = servidorData.cargo || '—';
+  var initials = (servidorData.nome || '--').split(' ').slice(0,2).map(function(w){ return w[0]; }).join('');
+  document.getElementById('sumAvatar').textContent = initials || '--';
+  document.getElementById('prog-nome').textContent = servidorData.nome || '—';
+}
+
+function updatePreview() {
+  var ass   = document.getElementById('assinador').value || '—';
+  var tipo  = document.getElementById('tipo').value;
+  var ano   = document.getElementById('ano').value || '2026';
+  var ef    = document.getElementById('efFin') ? document.getElementById('efFin').value : '';
+  var nvlA  = document.getElementById('nvlAnt') ? document.getElementById('nvlAnt').value || '—' : '—';
+  var nvlN  = document.getElementById('nvlNovo') ? document.getElementById('nvlNovo').value || '—' : '—';
+  var nome  = servidorData.nome || '—';
+  var cargo = servidorData.cargo || '—';
+  var tipoTxt = tipo ? ('por ' + tipo) : '—';
+  var efTxt = ef ? formatDate(ef) : '—';
+  document.querySelector('#previewBody h3').textContent = 'PORTARIA Nº —/' + ano + ' – REIT';
+  document.getElementById('prev-p1').innerHTML = 'O <strong>' + ass + '</strong>, no uso de suas atribuições legais e tendo em vista o contido no Processo nº —,';
+  document.getElementById('prev-p2').innerHTML = 'Conceder progressão funcional <strong>' + tipoTxt + '</strong> ao servidor <strong>' + nome + '</strong>, do cargo de ' + cargo + ', do nível <strong>' + nvlA + '</strong> para o nível <strong>' + nvlN + '</strong>, com efeitos financeiros a partir de <strong>' + efTxt + '</strong>.';
+  document.getElementById('prev-ass').textContent = ass;
+}
+
+function toggleDesig() {
+  var c = document.getElementById('chkDesig').checked;
+  document.getElementById('blockDesig').classList.toggle('on', c);
+}
+
+function toggleSum() {
+  var b = document.getElementById('sumBody');
+  var l = document.getElementById('sumToggle');
+  if (b.style.display === 'none') { b.style.display = ''; l.textContent = '▲ recolher'; }
+  else { b.style.display = 'none'; l.textContent = '▼ expandir'; }
+}
+
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.tab-pane').forEach(function(t){ t.classList.remove('on'); });
+  el.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('on');
+}
+
+function switchProc(t) {
+  document.getElementById('cp-fisico').style.display = t === 'fisico' ? '' : 'none';
+  document.getElementById('cp-eletronico').style.display = t === 'eletronico' ? '' : 'none';
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  var p = d.split('-');
+  return p[2] + '/' + p[1] + '/' + p[0];
+}
+
+function capitalize(s) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+</script>
+
+</body>
+</html>
