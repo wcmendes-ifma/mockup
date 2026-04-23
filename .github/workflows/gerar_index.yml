@@ -1,0 +1,22 @@
+name: Gerar index
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Gerar index.html
+        run: python gerar_index.py
+
+      - name: Commit e push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "chore: atualiza index.html"
+          git push
