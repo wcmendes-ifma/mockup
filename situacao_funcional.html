@@ -1,0 +1,452 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary);background:var(--color-background-tertiary);min-height:100vh}
+.topbar{background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:8px 16px;display:flex;align-items:center;justify-content:space-between}
+.suap-logo{font-weight:500;font-size:15px}
+.breadcrumb{font-size:12px;color:var(--color-text-secondary)}
+.breadcrumb a{color:var(--color-text-info);cursor:pointer}
+.topbar-right{display:flex;gap:8px}
+.btn{padding:6px 14px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);transition:background 0.15s}
+.btn:hover{background:var(--color-background-secondary)}
+.btn-primary{background:#1D9E75;color:#fff;border-color:#1D9E75}
+.btn-primary:hover{background:#0F6E56}
+.btn-blue{background:#378ADD;color:#fff;border-color:#378ADD}
+.btn-blue:hover{background:#185FA5}
+.page{padding:16px;max-width:1100px;margin:0 auto}
+.page-title{font-size:20px;font-weight:500;margin-bottom:14px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px;margin-bottom:12px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}
+.info-row{display:flex;gap:6px;font-size:13px;padding:2px 0}
+.info-key{color:var(--color-text-secondary);min-width:80px}
+.info-val{color:var(--color-text-primary);font-weight:500}
+.link-assinada{font-size:12px;color:var(--color-text-info);cursor:pointer;text-decoration:underline}
+.block-header{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;margin-bottom:2px}
+.block-title{font-weight:500;font-size:14px}
+.block-chevron{font-size:12px;color:var(--color-text-secondary);transition:transform 0.2s}
+.block-chevron.open{transform:rotate(180deg)}
+.block-body{border:0.5px solid var(--color-border-tertiary);border-top:none;border-radius:0 0 var(--border-radius-md) var(--border-radius-md);background:var(--color-background-primary);overflow:hidden}
+.para-table{width:100%;border-collapse:collapse}
+.para-table th{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--color-text-secondary);padding:8px 10px;border-bottom:0.5px solid var(--color-border-tertiary);text-align:left}
+.para-table td{padding:8px 10px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;font-size:13px}
+.para-table tr:last-child td{border-bottom:none}
+.col-order{width:70px}
+.col-status{width:120px}
+.col-acoes{width:120px}
+.order-btns{display:flex;flex-direction:column;gap:2px;align-items:center}
+.order-btn{width:22px;height:18px;border:0.5px solid var(--color-border-secondary);border-radius:4px;background:var(--color-background-secondary);cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;color:var(--color-text-secondary)}
+.order-btn:hover{background:var(--color-background-primary)}
+.badge{display:inline-block;padding:3px 10px;border-radius:var(--border-radius-md);font-size:12px;font-weight:500}
+.badge-def{background:#EAF3DE;color:#3B6D11}
+.badge-pend{background:#FAEEDA;color:#854F0B}
+.badge-indf{background:#FCEBEB;color:#A32D2D}
+.acoes-btns{display:flex;gap:4px}
+.icon-btn{width:28px;height:28px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:background 0.15s}
+.icon-btn:hover{background:var(--color-background-tertiary)}
+.icon-btn.edit{border-color:#B5D4F4;color:#185FA5;background:#E6F1FB}
+.icon-btn.del{border-color:#F7C1C1;color:#A32D2D;background:#FCEBEB}
+.icon-btn.hist{border-color:var(--color-border-secondary);color:var(--color-text-secondary)}
+.add-row{padding:10px 14px;text-align:right;border-top:0.5px solid var(--color-border-tertiary)}
+.block-wrap{margin-bottom:10px}
+.block-collapsed .block-body{display:none}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal-box{background:var(--color-background-primary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);width:600px;max-width:96vw;max-height:88vh;overflow:auto}
+.modal-header{padding:18px 20px 10px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.modal-title{font-size:17px;font-weight:500}
+.modal-cat{font-size:13px;font-weight:500;color:#1D9E75;margin-top:4px}
+.modal-body{padding:16px 20px}
+.modal-footer{padding:12px 20px;border-top:0.5px solid var(--color-border-tertiary);display:flex;justify-content:flex-end;gap:8px}
+.rich-toolbar{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.rtb-btn{padding:3px 8px;border:0.5px solid var(--color-border-secondary);border-radius:4px;background:var(--color-background-secondary);cursor:pointer;font-size:12px;color:var(--color-text-primary)}
+.rtb-btn:hover{background:var(--color-background-tertiary)}
+.editor-area{width:100%;min-height:120px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:10px 12px;font-size:13px;color:var(--color-text-primary);background:var(--color-background-primary);resize:vertical;font-family:var(--font-sans);line-height:1.6}
+.editor-note{font-size:11px;color:var(--color-text-secondary);margin-top:6px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);padding:6px 10px;border-radius:var(--border-radius-md)}
+.model-row{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 12px;margin-bottom:6px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;transition:background 0.15s}
+.model-row:hover{background:var(--color-background-tertiary)}
+.model-section-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--color-text-secondary);margin-bottom:6px;margin-top:14px}
+.hist-entry{border-left:2px solid var(--color-border-secondary);padding:6px 0 6px 12px;margin-bottom:10px;font-size:13px}
+.hist-meta{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.aviso{background:#FAEEDA;border:0.5px solid #FAC775;border-radius:var(--border-radius-md);padding:8px 14px;font-size:13px;color:#854F0B;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--color-text-secondary);margin-bottom:10px}
+</style>
+
+<div>
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:8px">
+    <span class="suap-logo">suap</span>
+    <span class="breadcrumb"><a>Início</a> › <a>Servidores</a> › <a>Situação Funcional</a></span>
+  </div>
+  <div class="topbar-right">
+    <button class="btn" onclick="showToast('Configuração salva com sucesso.')">Salvar Configuração</button>
+    <button class="btn btn-blue" onclick="showToast('Documento gerado. Parágrafos pendentes foram ignorados.')">Gerar Situação Funcional</button>
+    <button class="btn">? Ajuda</button>
+  </div>
+</div>
+
+<div class="page">
+  <div class="page-title">Configuração de Situação Funcional do Servidor</div>
+  <div class="aviso">⚠ Existem parágrafos com status Pendente que não serão incluídos no documento final.</div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <span class="card-label">Cabeçalho de Informações</span>
+      <span class="link-assinada" onclick="showToast('Abrindo último documento assinado...')">Ver última Situação Funcional Assinada</span>
+    </div>
+    <div class="info-grid">
+      <div><div class="info-row"><span class="info-key">Servidor:</span><span class="info-val">Ricardo Cardoso de Sousa (3520325)</span></div></div>
+      <div><div class="info-row"><span class="info-key">Categoria:</span><span class="info-val">Docente</span></div></div>
+      <div><div class="info-row"><span class="info-key">Cargo:</span><span class="info-val">PROFESSOR ENS BASICO TECN TECNOLOGICO (CMEBT)</span></div></div>
+      <div><div class="info-row"><span class="info-key">Campus:</span><span class="info-val">Viana</span></div></div>
+      <div><div class="info-row"><span class="info-key">Regime:</span><span class="info-val">Dedicação Exclusiva — 40h semanais</span></div></div>
+      <div><div class="info-row"><span class="info-key">E-mail:</span><span class="info-val">ricardo.sousa@ifma.edu.br</span></div></div>
+    </div>
+  </div>
+
+  <div id="blocks-container"></div>
+</div>
+
+<!-- Modal Adicionar/Editar -->
+<div class="modal-overlay" id="modal-para" style="display:none">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-para-title">Adicionar Parágrafo à Situação Funcional</div>
+      <div class="modal-cat" id="modal-para-cat"></div>
+    </div>
+    <div class="modal-body">
+      <div class="rich-toolbar">
+        <button class="rtb-btn" onclick="document.execCommand('bold')"><b>B</b></button>
+        <button class="rtb-btn" onclick="document.execCommand('italic')"><i>I</i></button>
+        <button class="rtb-btn" onclick="document.execCommand('strikeThrough')"><s>S</s></button>
+        <button class="rtb-btn" onclick="document.execCommand('underline')"><u>U</u></button>
+        <button class="rtb-btn">≡</button>
+        <button class="rtb-btn">☰</button>
+        <button class="rtb-btn">⇥</button>
+      </div>
+      <div class="editor-area" id="para-editor" contenteditable="true"></div>
+      <div class="editor-note">Nota: Cada quebra de linha gerará um objeto de parágrafo independente no banco de dados</div>
+      <div class="model-section-label">Parágrafos existentes no bloco</div>
+      <div id="modal-existing-paras"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-para')">Cancelar</button>
+      <button class="btn btn-primary" onclick="savePara()">Salvar Parágrafo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Histórico -->
+<div class="modal-overlay" id="modal-hist" style="display:none">
+  <div class="modal-box" style="width:500px">
+    <div class="modal-header">
+      <div class="modal-title">Histórico do Parágrafo</div>
+      <div class="modal-cat" id="modal-hist-label" style="color:var(--color-text-secondary)"></div>
+    </div>
+    <div class="modal-body" id="modal-hist-body"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-hist')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Deferir/Indeferir -->
+<div class="modal-overlay" id="modal-def" style="display:none">
+  <div class="modal-box" style="width:440px">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-def-title">Deferir Parágrafo</div>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px" id="modal-def-msg"></p>
+      <div style="font-size:13px;font-weight:500;margin-bottom:6px">Parágrafo:</div>
+      <div style="font-size:13px;color:var(--color-text-secondary);background:var(--color-background-secondary);padding:10px;border-radius:var(--border-radius-md);line-height:1.6" id="modal-def-text"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-def')">Cancelar</button>
+      <button class="btn btn-primary" id="modal-def-btn" onclick="confirmDefer()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" style="position:fixed;bottom:24px;right:24px;background:#2C2C2A;color:#fff;padding:10px 18px;border-radius:var(--border-radius-md);font-size:13px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:999"></div>
+
+<script>
+const blocks = [
+  {
+    id:1, title:"Block 1: Nomeação", open:true,
+    paras:[
+      {
+        id:101,
+        text:"Nomeado em caráter efetivo no quadro de pessoal deste Instituto Federal de Educação, Ciência e Tecnologia do Maranhão, Campus Viana, nos termos do Art. 9º, Inciso I da Lei 8.112/90, de 11 de dezembro de 1990, habilitado em Concurso Público, conforme Edital nº 04, de 03 de março de 2011, publicado no DOU de 07 de março de 2011, para exercer o cargo efetivo de Professor do Ensino Básico, Técnico e Tecnológico, Classe D I, Nível 1, na Área/Disciplina Informática, em regime de 40 (quarenta) horas semanais de trabalho e Dedicação Exclusiva, na vaga de Código nº 0912847, nos termos da Portaria nº 1.102 de 15 de março de 2012, publicada no DOU de 19 de março de 2012.",
+        status:"Deferido", user_def:"Ana Lima", date_def:"10/01/2025"
+      },
+      {
+        id:102,
+        text:"Tomou posse no dia 02 de abril de 2012, a partir de 09 de abril de 2012, sendo lotado no Campus Viana e localizado no Departamento de Ciências Básicas e Tecnológicas, nos termos da Portaria nº 1.220 de 09 de abril de 2012 – Reitoria.",
+        status:"Deferido", user_def:"Ana Lima", date_def:"10/01/2025"
+      }
+    ]
+  },
+  {
+    id:2, title:"Block 2: Lotação e Localização", open:false,
+    paras:[
+      {
+        id:201,
+        text:"Entrou em Efetivo Exercício no dia 09 de abril de 2012, sendo lotado no Campus Viana e localizado no Departamento de Ciências Básicas e Tecnológicas, nos termos da Portaria nº 1.221 de 09 de abril de 2012 – Reitoria.",
+        status:"Deferido", user_def:"Ana Lima", date_def:"10/01/2025"
+      },
+      {
+        id:202,
+        text:"Localizado na Diretoria de Ensino do Campus Viana, a partir de 15 de fevereiro de 2018, data de publicação da Portaria nº 612 de 12 de fevereiro de 2018 no DOU, nos termos da Portaria nº 613 de 12 de fevereiro de 2018 – Reitoria.",
+        status:"Pendente", user_def:null, date_def:null
+      }
+    ]
+  },
+  {
+    id:3, title:"Block 3: Estabilidade", open:false,
+    paras:[
+      {
+        id:301,
+        text:"Aprovado o Resultado Final da Avaliação de Estágio Probatório e de Estabilidade do servidor, empossado no dia 09 de abril de 2012, com período de Estágio entre 09.04.2012 a 09.04.2015, avaliado em 12.03.2015, 18.03.2015 e 24.03.2015, tendo obtido conceito Excelente e resultado Aprovado, nos termos da Portaria nº 2.188 de 14 de julho de 2015 – Reitoria.",
+        status:"Deferido", user_def:"João Pereira", date_def:"15/01/2025"
+      }
+    ]
+  },
+  {
+    id:4, title:"Block 4: Progressão Funcional", open:false,
+    paras:[
+      {
+        id:401,
+        text:"Concedida a Progressão Funcional por Desempenho Acadêmico, passando o servidor da Classe D I, Nível 1, para a Classe D II, Nível 1, com efeitos financeiros a partir de 09 de abril de 2014, nos termos da Portaria nº 3.045 de 18 de junho de 2014 – Reitoria.",
+        status:"Deferido", user_def:"Maria Silva", date_def:"20/01/2025"
+      },
+      {
+        id:402,
+        text:"Concedida a Progressão Funcional por Desempenho Acadêmico, passando o servidor da Classe D II, Nível 1, para a Classe D II, Nível 2, relativo ao interstício de 09 de abril de 2014 a 09 de abril de 2016, com efeitos financeiros a partir de 09 de abril de 2016, nos termos da Portaria nº 4.312 de 22 de agosto de 2016 – Reitoria.",
+        status:"Deferido", user_def:"Maria Silva", date_def:"20/01/2025"
+      },
+      {
+        id:403,
+        text:"Concedida a Progressão Funcional por Desempenho Acadêmico, passando o servidor da Classe D II, Nível 2, para a Classe D III, Nível 1, relativo ao interstício de 09 de abril de 2016 a 09 de abril de 2018, com efeitos financeiros a partir de 09 de abril de 2018, nos termos da Portaria nº 5.887 de 14 de outubro de 2019 – Reitoria.",
+        status:"Pendente", user_def:null, date_def:null
+      }
+    ]
+  },
+  {
+    id:5, title:"Block 5: Retribuição por Titulação", open:false,
+    paras:[
+      {
+        id:501,
+        text:"Concedida a Retribuição por Titulação em nível de Especialização, com efeitos financeiros estabelecidos a partir de 22 de setembro de 2013, mudando da Classe D I, Nível 1 para a Classe D II, Nível 1, nos termos da Portaria nº 889 de 28 de fevereiro de 2014 – Reitoria.",
+        status:"Deferido", user_def:"Ana Lima", date_def:"22/01/2025"
+      },
+      {
+        id:502,
+        text:"Concedida a Retribuição por Titulação em nível de Mestrado, com efeitos financeiros estabelecidos a partir de 14 de março de 2019, nos termos da Portaria nº 7.241 de 10 de dezembro de 2019 – Reitoria.",
+        status:"Pendente", user_def:null, date_def:null
+      }
+    ]
+  }
+];
+
+const historyData = {
+  101:[
+    {tipo:"Cadastro com Deferimento",usuario:"Ana Lima",data:"10/01/2025 09:14",texto:"Nomeado em caráter efetivo no quadro de pessoal...",status:"Deferido"},
+    {tipo:"Importação Automática",usuario:"Sistema SUAP",data:"08/01/2025 11:00",texto:"[texto gerado via Atos Administrativos]",status:"Pendente"}
+  ],
+  102:[
+    {tipo:"Cadastro com Deferimento",usuario:"Ana Lima",data:"10/01/2025 09:20",texto:"Tomou posse no dia 02 de abril de 2012...",status:"Deferido"}
+  ],
+  201:[
+    {tipo:"Cadastro com Deferimento",usuario:"Ana Lima",data:"10/01/2025 10:05",texto:"Entrou em Efetivo Exercício no dia 09 de abril de 2012...",status:"Deferido"}
+  ],
+  202:[
+    {tipo:"Importação Automática",usuario:"Sistema SUAP",data:"08/01/2025 11:01",texto:"Localizado na Diretoria de Ensino do Campus Viana...",status:"Pendente"}
+  ],
+  301:[
+    {tipo:"Cadastro com Deferimento",usuario:"João Pereira",data:"15/01/2025 14:30",texto:"Aprovado o Resultado Final da Avaliação...",status:"Deferido"}
+  ],
+  401:[
+    {tipo:"Cadastro com Deferimento",usuario:"Maria Silva",data:"20/01/2025 08:45",texto:"Concedida a Progressão Funcional por Desempenho Acadêmico...",status:"Deferido"}
+  ],
+  402:[
+    {tipo:"Edição de Texto",usuario:"Maria Silva",data:"20/01/2025 09:10",texto:"[versão anterior com data incorreta]",status:"Pendente"},
+    {tipo:"Deferimento",usuario:"Maria Silva",data:"20/01/2025 09:15",texto:"Concedida a Progressão Funcional por Desempenho Acadêmico, passando o servidor da Classe D II...",status:"Deferido"}
+  ],
+  403:[
+    {tipo:"Importação Automática",usuario:"Sistema SUAP",data:"08/01/2025 11:03",texto:"Concedida a Progressão Funcional por Desempenho Acadêmico, passando o servidor da Classe D II, Nível 2, para a Classe D III...",status:"Pendente"}
+  ],
+  501:[
+    {tipo:"Cadastro com Deferimento",usuario:"Ana Lima",data:"22/01/2025 10:00",texto:"Concedida a Retribuição por Titulação em nível de Especialização...",status:"Deferido"}
+  ],
+  502:[
+    {tipo:"Importação Automática",usuario:"Sistema SUAP",data:"08/01/2025 11:04",texto:"Concedida a Retribuição por Titulação em nível de Mestrado...",status:"Pendente"}
+  ]
+};
+
+let currentBlockId=null, currentParaId=null, deferAction=null;
+
+function render(){
+  const c=document.getElementById('blocks-container');
+  c.innerHTML='';
+  blocks.forEach(b=>{
+    const d=document.createElement('div');
+    d.className='block-wrap'+(b.open?'':' block-collapsed');
+    d.innerHTML=`
+      <div class="block-header" onclick="toggleBlock(${b.id})">
+        <span class="block-title">${b.title}</span>
+        <span class="block-chevron ${b.open?'open':''}">▲</span>
+      </div>
+      <div class="block-body">
+        <table class="para-table">
+          <thead><tr>
+            <th class="col-order">Ordem</th>
+            <th>Conteúdo</th>
+            <th class="col-status">Status</th>
+            <th class="col-acoes">Ações</th>
+          </tr></thead>
+          <tbody>
+            ${b.paras.map((p,i)=>`
+              <tr>
+                <td class="col-order">
+                  <div style="display:flex;align-items:center;gap:6px">
+                    <span style="font-size:12px;color:var(--color-text-secondary)">${i+1}</span>
+                    <div class="order-btns">
+                      <button class="order-btn" onclick="movePara(${b.id},${p.id},-1)" ${i===0?'disabled':''}>▲</button>
+                      <button class="order-btn" onclick="movePara(${b.id},${p.id},1)" ${i===b.paras.length-1?'disabled':''}>▼</button>
+                    </div>
+                  </div>
+                </td>
+                <td style="line-height:1.6;font-size:13px">${p.text}</td>
+                <td>
+                  <span class="badge ${p.status==='Deferido'?'badge-def':p.status==='Pendente'?'badge-pend':'badge-indf'}">${p.status}</span>
+                  ${p.user_def?`<div style="font-size:10px;color:var(--color-text-secondary);margin-top:4px">${p.user_def}<br>${p.date_def}</div>`:''}
+                </td>
+                <td>
+                  <div class="acoes-btns">
+                    <button class="icon-btn edit" title="Editar" onclick="openEditPara(${b.id},${p.id})">✎</button>
+                    <button class="icon-btn del" title="Excluir" onclick="deletePara(${b.id},${p.id})">✕</button>
+                    <button class="icon-btn hist" title="Histórico" onclick="openHist(${p.id})">◷</button>
+                  </div>
+                  <div style="margin-top:5px;display:flex;gap:4px;flex-wrap:wrap">
+                    ${p.status!=='Deferido'?`<button class="btn" style="font-size:11px;padding:2px 8px;background:#EAF3DE;border-color:#C0DD97;color:#3B6D11" onclick="openDefer(${b.id},${p.id},'Deferir')">Deferir</button>`:''}
+                    ${p.status!=='Indeferido'?`<button class="btn" style="font-size:11px;padding:2px 8px;background:#FCEBEB;border-color:#F7C1C1;color:#A32D2D" onclick="openDefer(${b.id},${p.id},'Indeferir')">Indeferir</button>`:''}
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div class="add-row">
+          <button class="btn btn-primary" onclick="openAddPara(${b.id})">+ Adicionar Parágrafo</button>
+        </div>
+      </div>
+    `;
+    c.appendChild(d);
+  });
+}
+
+function toggleBlock(id){const b=blocks.find(x=>x.id===id);b.open=!b.open;render();}
+function movePara(bid,pid,dir){const b=blocks.find(x=>x.id===bid);const i=b.paras.findIndex(x=>x.id===pid);const ni=i+dir;if(ni<0||ni>=b.paras.length)return;[b.paras[i],b.paras[ni]]=[b.paras[ni],b.paras[i]];render();}
+function deletePara(bid,pid){const b=blocks.find(x=>x.id===bid);b.paras=b.paras.filter(x=>x.id!==pid);showToast('Parágrafo excluído.');render();}
+
+function openAddPara(bid){
+  currentBlockId=bid;currentParaId=null;
+  const b=blocks.find(x=>x.id===bid);
+  document.getElementById('modal-para-title').textContent='Adicionar Parágrafo à Situação Funcional';
+  document.getElementById('modal-para-cat').textContent='Categoria: '+b.title.replace(/Block \d+: /,'');
+  document.getElementById('para-editor').textContent='';
+  renderExisting(b,null);
+  document.getElementById('modal-para').style.display='flex';
+}
+
+function openEditPara(bid,pid){
+  currentBlockId=bid;currentParaId=pid;
+  const b=blocks.find(x=>x.id===bid);
+  const p=b.paras.find(x=>x.id===pid);
+  document.getElementById('modal-para-title').textContent='Editar Parágrafo';
+  document.getElementById('modal-para-cat').textContent='Categoria: '+b.title.replace(/Block \d+: /,'');
+  document.getElementById('para-editor').textContent=p.text;
+  renderExisting(b,pid);
+  document.getElementById('modal-para').style.display='flex';
+}
+
+function renderExisting(b,excludeId){
+  const c=document.getElementById('modal-existing-paras');
+  const paras=b.paras.filter(x=>x.id!==excludeId);
+  c.innerHTML=paras.length?paras.map(p=>`
+    <div class="model-row" onclick="document.getElementById('para-editor').textContent='${p.text.replace(/'/g,"\\'").replace(/\n/g,' ')}'">
+      <div style="line-height:1.5">${p.text.substring(0,100)}${p.text.length>100?'...':''}</div>
+      <div style="margin-top:3px;display:flex;justify-content:space-between">
+        <span class="badge ${p.status==='Deferido'?'badge-def':'badge-pend'}" style="font-size:10px;padding:1px 6px">${p.status}</span>
+        <span style="font-size:10px;color:var(--color-text-secondary)">${p.user_def||'Sistema'}</span>
+      </div>
+    </div>
+  `).join(''):'<div style="font-size:12px;color:var(--color-text-secondary)">Nenhum parágrafo existente.</div>';
+}
+
+function savePara(){
+  const txt=document.getElementById('para-editor').textContent.trim();
+  if(!txt){showToast('Insira o conteúdo do parágrafo.');return;}
+  const lines=txt.split('\n').filter(x=>x.trim());
+  const b=blocks.find(x=>x.id===currentBlockId);
+  if(currentParaId){
+    const p=b.paras.find(x=>x.id===currentParaId);
+    p.text=lines[0];p.status='Deferido';p.user_def='William Mendes';p.date_def=new Date().toLocaleDateString('pt-BR');
+    lines.slice(1).forEach((l,i)=>b.paras.push({id:Date.now()+i,text:l,status:'Deferido',user_def:'William Mendes',date_def:new Date().toLocaleDateString('pt-BR')}));
+    showToast('Parágrafo atualizado. Log de auditoria registrado.');
+  } else {
+    lines.forEach((l,i)=>b.paras.push({id:Date.now()+i,text:l,status:'Deferido',user_def:'William Mendes',date_def:new Date().toLocaleDateString('pt-BR')}));
+    showToast(lines.length>1?`${lines.length} parágrafos criados. Log registrado.`:'Parágrafo adicionado. Log registrado.');
+  }
+  closeModal('modal-para');render();
+}
+
+function openHist(pid){
+  const entries=historyData[pid]||[];
+  document.getElementById('modal-hist-label').textContent='Log: Visualizando histórico de alterações do parágrafo ['+pid+']';
+  const body=document.getElementById('modal-hist-body');
+  body.innerHTML=entries.length?entries.map(e=>`
+    <div class="hist-entry">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+        <span class="badge ${e.status==='Deferido'?'badge-def':e.status==='Pendente'?'badge-pend':'badge-indf'}" style="font-size:11px;padding:1px 7px">${e.status}</span>
+        <span style="font-weight:500;font-size:12px">${e.tipo}</span>
+      </div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:3px;line-height:1.5">${e.texto.substring(0,120)}${e.texto.length>120?'...':''}</div>
+      <div class="hist-meta">por <b>${e.usuario}</b> em ${e.data}</div>
+    </div>
+  `).join(''):'<p style="font-size:13px;color:var(--color-text-secondary)">Nenhum registro encontrado.</p>';
+  document.getElementById('modal-hist').style.display='flex';
+}
+
+function openDefer(bid,pid,action){
+  currentBlockId=bid;currentParaId=pid;deferAction=action;
+  const b=blocks.find(x=>x.id===bid);
+  const p=b.paras.find(x=>x.id===pid);
+  document.getElementById('modal-def-title').textContent=action+' Parágrafo';
+  document.getElementById('modal-def-msg').textContent='Deseja confirmar a ação de '+action.toLowerCase()+' para este parágrafo? A ação será registrada no log de auditoria.';
+  document.getElementById('modal-def-text').textContent=p.text.substring(0,200)+(p.text.length>200?'...':'');
+  const btn=document.getElementById('modal-def-btn');
+  btn.textContent='Confirmar '+action;
+  if(action==='Indeferir'){btn.className='btn';btn.style.cssText='background:#FCEBEB;color:#A32D2D;border-color:#F7C1C1';}
+  else{btn.className='btn btn-primary';btn.style.cssText='';}
+  document.getElementById('modal-def').style.display='flex';
+}
+
+function confirmDefer(){
+  const b=blocks.find(x=>x.id===currentBlockId);
+  const p=b.paras.find(x=>x.id===currentParaId);
+  p.status=deferAction==='Deferir'?'Deferido':'Indeferido';
+  p.user_def='William Mendes';p.date_def=new Date().toLocaleDateString('pt-BR');
+  showToast('Status atualizado para '+p.status+'. Log de auditoria registrado.');
+  closeModal('modal-def');render();
+}
+
+function closeModal(id){document.getElementById(id).style.display='none';}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.opacity='1';
+  setTimeout(()=>{t.style.opacity='0';},3000);
+}
+
+render();
+</script>
