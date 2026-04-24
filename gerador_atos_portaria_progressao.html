@@ -1,13 +1,37 @@
-
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portaria de Progressão — SUAP/IFMA</title>
 <style>
+:root {
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f5f5f2;
+  --color-background-tertiary: #efefeb;
+  --color-border-tertiary: rgba(0,0,0,0.12);
+  --color-border-secondary: rgba(0,0,0,0.25);
+  --color-text-primary: #1a1a18;
+  --color-text-secondary: #6b6b67;
+  --color-text-tertiary: #9b9b96;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary)}
-.wrap{background:var(--color-background-tertiary);min-height:600px}
-.suap-header{padding:12px 20px;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary)}
+body{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary);background:var(--color-background-tertiary);min-height:100vh}
+.wrap{background:var(--color-background-tertiary);min-height:100vh}
+
+/* ── barra superior sticky ── */
+.suap-header{padding:12px 20px;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);position:sticky;top:0;z-index:50}
+.suap-header-inner{max-width:900px;margin:0 auto}
 .breadcrumb{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
 .breadcrumb span{color:#1d9e75}
 .page-title{font-size:19px;font-weight:500}
-.stepper{display:flex;align-items:center;padding:14px 20px;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary)}
+
+/* ── stepper sticky abaixo do header ── */
+.stepper{display:flex;align-items:center;padding:14px 20px;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);position:sticky;top:57px;z-index:40}
+.stepper-inner{max-width:900px;margin:0 auto;width:100%;display:flex;align-items:center}
 .step{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
 .step-circle{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
 .step.active .step-circle{background:#1d9e75;color:#fff}
@@ -17,8 +41,12 @@ body{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary)
 .step.done .step-label{color:#0f6e56}
 .step.inactive .step-label{color:var(--color-text-secondary)}
 .step-sep{flex:1;height:1px;background:var(--color-border-tertiary);margin:0 10px}
+
+/* ── conteúdo centralizado ── */
 .screen{display:none;padding:16px 20px}
 .screen.visible{display:block}
+.screen-inner{max-width:900px;margin:0 auto}
+
 .form-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:14px}
 .form-card-header{padding:9px 16px;background:#f0f9f5;border-bottom:0.5px solid #9fe1cb;font-size:13px;font-weight:500;color:#085041}
 .form-row{display:grid;grid-template-columns:180px 1fr;border-bottom:0.5px solid var(--color-border-tertiary)}
@@ -71,214 +99,220 @@ body{font-family:var(--font-sans);font-size:14px;color:var(--color-text-primary)
 .preview-body p{margin-bottom:10px;text-align:justify}
 .preview-body .assinatura{margin-top:24px;text-align:center}
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <div class="suap-header">
-    <div class="breadcrumb">Início › Atos Administrativos › <span>Portarias de Progressões de TAE</span> › Adicionar</div>
-    <div class="page-title">Adicionar Portaria de Progressão de TAE</div>
+    <div class="suap-header-inner">
+      <div class="breadcrumb">Início › Atos Administrativos › <span>Portarias de Progressões de TAE</span> › Adicionar</div>
+      <div class="page-title">Adicionar Portaria de Progressão de TAE</div>
+    </div>
   </div>
 
   <div class="stepper">
-    <div class="step active" id="st1">
-      <div class="step-circle">1</div>
-      <div class="step-label">Dados da portaria</div>
-    </div>
-    <div class="step-sep"></div>
-    <div class="step inactive" id="st2">
-      <div class="step-circle">2</div>
-      <div class="step-label">Progressão e documento</div>
+    <div class="stepper-inner">
+      <div class="step active" id="st1">
+        <div class="step-circle">1</div>
+        <div class="step-label">Dados da portaria</div>
+      </div>
+      <div class="step-sep"></div>
+      <div class="step inactive" id="st2">
+        <div class="step-circle">2</div>
+        <div class="step-label">Progressão e documento</div>
+      </div>
     </div>
   </div>
 
   <!-- TELA 1 -->
   <div class="screen visible" id="screen1">
-    <div class="form-card">
-      <div class="form-card-header">Dados da portaria</div>
+    <div class="screen-inner">
+      <div class="form-card">
+        <div class="form-card-header">Dados da portaria</div>
 
-      <div class="form-row">
-        <div class="form-label">Assinador<span class="req">*</span></div>
-        <div class="form-field">
-          <select id="assinador" onchange="updatePreview()">
-            <option value="">---------</option>
-            <option value="Carlos César Teixeira Ferreira">Carlos César Teixeira Ferreira</option>
-            <option value="Substituto designado">Substituto designado</option>
-          </select>
+        <div class="form-row">
+          <div class="form-label">Assinador<span class="req">*</span></div>
+          <div class="form-field">
+            <select id="assinador" onchange="updatePreview()">
+              <option value="">---------</option>
+              <option value="Carlos César Teixeira Ferreira">Carlos César Teixeira Ferreira</option>
+              <option value="Substituto designado">Substituto designado</option>
+            </select>
+          </div>
         </div>
-      </div>
 
-      <div class="form-row">
-        <div class="form-label">Servidor<span class="req">*</span></div>
-        <div class="form-field">
-          <select id="servidor" onchange="updateServidor()">
-            <option value="">Pesquisar servidor...</option>
-            <option value="Ana Paula Rodrigues|Técnica em Assuntos Educacionais|C-I">Ana Paula Rodrigues</option>
-            <option value="João Mendes Silva|Assistente em Administração|D-II">João Mendes Silva</option>
-          </select>
-          <div class="hint">Servidor que receberá a progressão</div>
+        <div class="form-row">
+          <div class="form-label">Servidor<span class="req">*</span></div>
+          <div class="form-field">
+            <select id="servidor" onchange="updateServidor()">
+              <option value="">Pesquisar servidor...</option>
+              <option value="Ana Paula Rodrigues|Técnica em Assuntos Educacionais|C-I">Ana Paula Rodrigues</option>
+              <option value="João Mendes Silva|Assistente em Administração|D-II">João Mendes Silva</option>
+            </select>
+            <div class="hint">Servidor que receberá a progressão</div>
+          </div>
         </div>
-      </div>
 
-      <div class="form-row">
-        <div class="form-label">Servidor é o titular?<span class="req">*</span></div>
-        <div class="form-field">
-          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:2px 0">
-            <input type="checkbox" id="chkDesig" onchange="toggleDesig()" />
-            Não — informar portaria de designação
-          </label>
-          <div class="cond-block" id="blockDesig">
-            <div class="cond-title">Portaria de Designação</div>
-            <div class="two-col">
-              <div>
-                <div class="mini-label">Número</div>
-                <input class="mini-input" type="number" id="numDesig" placeholder="Ex: 142" onchange="updatePreview()" />
-              </div>
-              <div>
-                <div class="mini-label">Data</div>
-                <input class="mini-input" type="date" id="dtDesig" onchange="updatePreview()" />
+        <div class="form-row">
+          <div class="form-label">Servidor é o titular?<span class="req">*</span></div>
+          <div class="form-field">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;padding:2px 0">
+              <input type="checkbox" id="chkDesig" onchange="toggleDesig()" />
+              Não — informar portaria de designação
+            </label>
+            <div class="cond-block" id="blockDesig">
+              <div class="cond-title">Portaria de Designação</div>
+              <div class="two-col">
+                <div>
+                  <div class="mini-label">Número</div>
+                  <input class="mini-input" type="number" id="numDesig" placeholder="Ex: 142" onchange="updatePreview()" />
+                </div>
+                <div>
+                  <div class="mini-label">Data</div>
+                  <input class="mini-input" type="date" id="dtDesig" onchange="updatePreview()" />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="form-row">
-        <div class="form-label">Data<span class="req">*</span></div>
-        <div class="form-field"><input type="date" id="dataPortaria" onchange="updatePreview()" /></div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">Campus</div>
-        <div class="form-field"><input type="text" value="REIT" disabled /></div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">Setor Dono<span class="req">*</span></div>
-        <div class="form-field"><select><option>---------</option><option>DIGTI</option><option>DRH</option></select></div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">Ano da Portaria<span class="req">*</span></div>
-        <div class="form-field"><input type="number" value="2026" id="ano" onchange="updatePreview()" /></div>
-      </div>
-      <div class="form-row">
-        <div class="form-label">Tipo<span class="req">*</span></div>
-        <div class="form-field">
-          <select id="tipo" onchange="updatePreview()">
-            <option value="">---------</option>
-            <option value="por mérito">Por mérito</option>
-            <option value="por capacitação">Por capacitação</option>
-          </select>
+        <div class="form-row">
+          <div class="form-label">Data<span class="req">*</span></div>
+          <div class="form-field"><input type="date" id="dataPortaria" onchange="updatePreview()" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">Campus</div>
+          <div class="form-field"><input type="text" value="REIT" disabled /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">Setor Dono<span class="req">*</span></div>
+          <div class="form-field"><select><option>---------</option><option>DIGTI</option><option>DRH</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">Ano da Portaria<span class="req">*</span></div>
+          <div class="form-field"><input type="number" value="2026" id="ano" onchange="updatePreview()" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-label">Tipo<span class="req">*</span></div>
+          <div class="form-field">
+            <select id="tipo" onchange="updatePreview()">
+              <option value="">---------</option>
+              <option value="por mérito">Por mérito</option>
+              <option value="por capacitação">Por capacitação</option>
+            </select>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="goTo(2)">Próximo →</button>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goTo(2)">Próximo →</button>
+      </div>
     </div>
   </div>
 
   <!-- TELA 2 -->
   <div class="screen" id="screen2">
+    <div class="screen-inner">
 
-    <!-- Resumo colapsável -->
-    <div class="summary-card">
-      <div class="sum-header" onclick="toggleSum()">
-        <div class="sum-title">Dados da portaria</div>
-        <span class="sum-toggle" id="sumToggle">▲ recolher</span>
-      </div>
-      <div id="sumBody">
-        <div class="servidor-badge">
-          <div class="badge-avatar" id="sumAvatar">--</div>
-          <div>
-            <div class="badge-name" id="sumNome">—</div>
-            <div class="badge-sub" id="sumCargo">—</div>
+      <div class="summary-card">
+        <div class="sum-header" onclick="toggleSum()">
+          <div class="sum-title">Dados da portaria</div>
+          <span class="sum-toggle" id="sumToggle">▲ recolher</span>
+        </div>
+        <div id="sumBody">
+          <div class="servidor-badge">
+            <div class="badge-avatar" id="sumAvatar">--</div>
+            <div>
+              <div class="badge-name" id="sumNome">—</div>
+              <div class="badge-sub" id="sumCargo">—</div>
+            </div>
           </div>
-        </div>
-        <div class="sum-grid" id="sumGrid">
-          <div class="sum-item"><div class="sum-lbl">Assinador</div><div class="sum-val" id="s-assinador">—</div></div>
-          <div class="sum-item"><div class="sum-lbl">Data</div><div class="sum-val" id="s-data">—</div></div>
-          <div class="sum-item"><div class="sum-lbl">Campus</div><div class="sum-val">REIT</div></div>
-          <div class="sum-item"><div class="sum-lbl">Ano</div><div class="sum-val" id="s-ano">—</div></div>
-          <div class="sum-item"><div class="sum-lbl">Tipo</div><div class="sum-val" id="s-tipo">—</div></div>
-          <div class="sum-item"><div class="sum-lbl">Titular</div><div class="sum-val" id="s-titular">Sim</div></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Abas: Processo / Progressão -->
-    <div class="form-card">
-      <div class="tabs">
-        <div class="tab active" onclick="switchTab('processo',this)">Processo</div>
-        <div class="tab" onclick="switchTab('progressao',this)">Progressão</div>
-      </div>
-
-      <div class="tab-pane on" id="tab-processo">
-        <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px">Associe um processo a esta portaria — físico ou eletrônico.</div>
-        <div class="radio-group">
-          <label><input type="radio" name="tpProc" value="fisico" checked onchange="switchProc('fisico')" /> Processo físico</label>
-          <label><input type="radio" name="tpProc" value="eletronico" onchange="switchProc('eletronico')" /> Processo eletrônico</label>
-        </div>
-        <div id="cp-fisico">
-          <div class="mini-label">Número do processo físico</div>
-          <input class="mini-input" type="text" placeholder="Pesquisar..." style="max-width:400px" />
-        </div>
-        <div id="cp-eletronico" style="display:none">
-          <div class="mini-label">Número do processo eletrônico</div>
-          <input class="mini-input" type="text" placeholder="Pesquisar..." style="max-width:400px" />
-        </div>
-      </div>
-
-      <div class="tab-pane" id="tab-progressao">
-        <div style="display:grid;grid-template-columns:180px 1fr;gap:0">
-          <div style="font-size:13px;color:var(--color-text-secondary);padding:4px 0 10px;grid-column:1/-1;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:10px">Dados da progressão do servidor <strong id="prog-nome">—</strong></div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-          <div>
-            <div class="mini-label">Efeitos Financeiros<span class="req">*</span></div>
-            <input class="mini-input" type="date" id="efFin" onchange="updatePreview()" />
-          </div>
-          <div></div>
-          <div>
-            <div class="mini-label">Nível Anterior</div>
-            <select class="mini-input" id="nvlAnt" onchange="updatePreview()"><option value="">---------</option><option>C-I</option><option>C-II</option><option>D-I</option><option>D-II</option></select>
-          </div>
-          <div>
-            <div class="mini-label">Novo Nível</div>
-            <select class="mini-input" id="nvlNovo" onchange="updatePreview()"><option value="">---------</option><option>C-II</option><option>C-III</option><option>D-II</option><option>D-III</option></select>
-          </div>
-          <div>
-            <div class="mini-label">Padrão de Vencimento Anterior</div>
-            <select class="mini-input" id="padAnt" onchange="updatePreview()"><option value="">---------</option><option>I</option><option>II</option><option>III</option></select>
-          </div>
-          <div>
-            <div class="mini-label">Novo Padrão de Vencimento</div>
-            <select class="mini-input" id="padNovo" onchange="updatePreview()"><option value="">---------</option><option>II</option><option>III</option><option>IV</option></select>
+          <div class="sum-grid" id="sumGrid">
+            <div class="sum-item"><div class="sum-lbl">Assinador</div><div class="sum-val" id="s-assinador">—</div></div>
+            <div class="sum-item"><div class="sum-lbl">Data</div><div class="sum-val" id="s-data">—</div></div>
+            <div class="sum-item"><div class="sum-lbl">Campus</div><div class="sum-val">REIT</div></div>
+            <div class="sum-item"><div class="sum-lbl">Ano</div><div class="sum-val" id="s-ano">—</div></div>
+            <div class="sum-item"><div class="sum-lbl">Tipo</div><div class="sum-val" id="s-tipo">—</div></div>
+            <div class="sum-item"><div class="sum-lbl">Titular</div><div class="sum-val" id="s-titular">Sim</div></div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Preview da portaria -->
-    <div class="preview-card">
-      <div class="preview-header">
-        <span>Preview do documento</span>
-        <span class="preview-badge">atualizado em tempo real</span>
-      </div>
-      <div class="preview-body" id="previewBody">
-        <h3>PORTARIA Nº —/2026 – REIT</h3>
-        <div class="subtitle">Instituto Federal de Educação, Ciência e Tecnologia do Maranhão</div>
-        <p id="prev-p1">O <strong>—</strong>, no uso de suas atribuições legais e tendo em vista o contido no Processo nº —,</p>
-        <p><strong>RESOLVE:</strong></p>
-        <p id="prev-p2">Conceder progressão funcional — ao servidor <strong>—</strong>, do cargo de —, do nível — para o nível —, com efeitos financeiros a partir de —.</p>
-        <div class="assinatura">
-          <p style="margin-top:32px">___________________________________</p>
-          <p id="prev-ass" style="font-size:13px;margin-top:4px">—</p>
-          <p style="font-size:12px;color:var(--color-text-secondary)">Reitor do IFMA</p>
+      <div class="form-card">
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab('processo',this)">Processo</div>
+          <div class="tab" onclick="switchTab('progressao',this)">Progressão</div>
+        </div>
+
+        <div class="tab-pane on" id="tab-processo">
+          <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px">Associe um processo a esta portaria — físico ou eletrônico.</div>
+          <div class="radio-group">
+            <label><input type="radio" name="tpProc" value="fisico" checked onchange="switchProc('fisico')" /> Processo físico</label>
+            <label><input type="radio" name="tpProc" value="eletronico" onchange="switchProc('eletronico')" /> Processo eletrônico</label>
+          </div>
+          <div id="cp-fisico">
+            <div class="mini-label">Número do processo físico</div>
+            <input class="mini-input" type="text" placeholder="Pesquisar..." style="max-width:400px" />
+          </div>
+          <div id="cp-eletronico" style="display:none">
+            <div class="mini-label">Número do processo eletrônico</div>
+            <input class="mini-input" type="text" placeholder="Pesquisar..." style="max-width:400px" />
+          </div>
+        </div>
+
+        <div class="tab-pane" id="tab-progressao">
+          <div style="font-size:13px;color:var(--color-text-secondary);padding-bottom:10px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:14px">Dados da progressão do servidor <strong id="prog-nome">—</strong></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <div class="mini-label">Efeitos Financeiros<span class="req">*</span></div>
+              <input class="mini-input" type="date" id="efFin" onchange="updatePreview()" />
+            </div>
+            <div></div>
+            <div>
+              <div class="mini-label">Nível Anterior</div>
+              <select class="mini-input" id="nvlAnt" onchange="updatePreview()"><option value="">---------</option><option>C-I</option><option>C-II</option><option>D-I</option><option>D-II</option></select>
+            </div>
+            <div>
+              <div class="mini-label">Novo Nível</div>
+              <select class="mini-input" id="nvlNovo" onchange="updatePreview()"><option value="">---------</option><option>C-II</option><option>C-III</option><option>D-II</option><option>D-III</option></select>
+            </div>
+            <div>
+              <div class="mini-label">Padrão de Vencimento Anterior</div>
+              <select class="mini-input" id="padAnt" onchange="updatePreview()"><option value="">---------</option><option>I</option><option>II</option><option>III</option></select>
+            </div>
+            <div>
+              <div class="mini-label">Novo Padrão de Vencimento</div>
+              <select class="mini-input" id="padNovo" onchange="updatePreview()"><option value="">---------</option><option>II</option><option>III</option><option>IV</option></select>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="btn-row">
-      <button class="btn" onclick="goTo(1)">← Voltar</button>
-      <button class="btn btn-primary">Salvar rascunho</button>
-      <button class="btn btn-blue" onclick="alert('Documento eletrônico gerado com sucesso!')">Gerar documento eletrônico</button>
+      <div class="preview-card">
+        <div class="preview-header">
+          <span>Preview do documento</span>
+          <span class="preview-badge">atualizado em tempo real</span>
+        </div>
+        <div class="preview-body" id="previewBody">
+          <h3>PORTARIA Nº —/2026 – REIT</h3>
+          <div class="subtitle">Instituto Federal de Educação, Ciência e Tecnologia do Maranhão</div>
+          <p id="prev-p1">O <strong>—</strong>, no uso de suas atribuições legais e tendo em vista o contido no Processo nº —,</p>
+          <p><strong>RESOLVE:</strong></p>
+          <p id="prev-p2">Conceder progressão funcional — ao servidor <strong>—</strong>, do cargo de —, do nível — para o nível —, com efeitos financeiros a partir de —.</p>
+          <div class="assinatura">
+            <p style="margin-top:32px">___________________________________</p>
+            <p id="prev-ass" style="font-size:13px;margin-top:4px">—</p>
+            <p style="font-size:12px;color:var(--color-text-secondary)">Reitor do IFMA</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" onclick="goTo(1)">← Voltar</button>
+        <button class="btn btn-primary">Salvar rascunho</button>
+        <button class="btn btn-blue" onclick="alert('Documento eletrônico gerado com sucesso!')">Gerar documento eletrônico</button>
+      </div>
+
     </div>
   </div>
 </div>
@@ -303,12 +337,8 @@ function goTo(n){
 
 function updateServidor(){
   var v=document.getElementById('servidor').value;
-  if(v){
-    var parts=v.split('|');
-    servidorData={nome:parts[0],cargo:parts[1],nivel:parts[2]};
-  } else {
-    servidorData={nome:'',cargo:'',nivel:''};
-  }
+  if(v){var parts=v.split('|');servidorData={nome:parts[0],cargo:parts[1],nivel:parts[2]};}
+  else{servidorData={nome:'',cargo:'',nivel:''};}
   updatePreview();
 }
 
@@ -348,8 +378,7 @@ function updatePreview(){
 }
 
 function toggleDesig(){
-  var c=document.getElementById('chkDesig').checked;
-  document.getElementById('blockDesig').classList.toggle('on',c);
+  document.getElementById('blockDesig').classList.toggle('on',document.getElementById('chkDesig').checked);
 }
 
 function toggleSum(){
@@ -371,10 +400,8 @@ function switchProc(t){
   document.getElementById('cp-eletronico').style.display=t==='eletronico'?'':'none';
 }
 
-function formatDate(d){
-  if(!d)return'—';
-  var p=d.split('-');
-  return p[2]+'/'+p[1]+'/'+p[0];
-}
+function formatDate(d){if(!d)return'—';var p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
 function capitalize(s){return s?s.charAt(0).toUpperCase()+s.slice(1):s;}
 </script>
+</body>
+</html>
